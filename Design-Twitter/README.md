@@ -320,7 +320,7 @@
    * Users receive notifications through their preferred communication channels.
 
 ### high level design
-![high level design](./images/twitter_System_Design.png)
+![high level design](./images/Twitter_System_Design.png)
 
 ### Database Design
 ![Database Design](./images/DistributedJobScheduler-Db-Design.png)
