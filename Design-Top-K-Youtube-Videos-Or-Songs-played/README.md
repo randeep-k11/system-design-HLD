@@ -83,7 +83,7 @@
         }
    ```
 ### _Questions_
-1. How can we scale to support 50k clicks per second?
+1. **How can we scale to support 50k clicks per second?**
    Let’s walk through each bottleneck the system could face from the moment a click is captured and how we can overcome it:
    * **Click Processor Service:** We can easily scale this service horizontally by adding more instances. Most modern cloud providers like AWS, Azure, and GCP provide managed services that automatically scale services based on CPU or memory usage. We’ll need a load balancer in front of the service to distribute the load across instances. 
    * **Stream:** Both Kafka and Kinesis are distributed and can handle a large number of events per second but need to be properly configured. Kinesis, for example, has a limit of 1MB/s or 1000 records/s per shard, so we’ll need to add some sharding. Sharding by songID is a natural choice, this way, the stream processor can read from multiple shards in parallel since they will be independent of each other (all events for a given songID will be in the same shard). 
@@ -92,7 +92,7 @@
 2. There is just one remaining issue, hot shards.
    Consider the case where Taylor swift just released a new song. This song is getting a lot of plays and all of them are going to the same shard. This shard is now overwhelmed, which increases latency and, in the worst case, could even cause data loss.
    To solve the hot shard problem, we need a way of further partitioning the data. One popular approach is to update the partition key by appending a random number to the songID. We could do this only for the popular songs as determined by artist’s previous record volume. This way, the partition key becomes SongId:0-N where N is the number of additional partitions for that SongId.
-3. How can we ensure that we don’t lose any click data?
+3. **How can we ensure that we don’t lose any click data**?
    * By default, these streams are distributed, fault-tolerant, and highly available. They replicate data across multiple nodes and data centers, so even if a node goes down, the data is not lost. Importantly for our system, they also allow us to enable persistent storage, so even if the data is consumed by the stream processor, it is still stored in the stream for a certain period of time.
    * We can configure a retention period of 7 days, for example, so that if, for some reason, our stream processor goes down, it will come back up and can read the data that it lost from the stream again.
    * Stream processors like Flink also have a feature called checkpointing. This is where the processor periodically writes its state to a persistent storage like S3. If it goes down, it can read the last checkpoint and resume processing from where it left off. This is particularly useful when the aggregation windows are large, like a day or a week. You can imagine we have a weeks worth of data in memory being aggregated and if the processor goes down, we don’t want to lose all that work.
@@ -100,5 +100,5 @@
      We can lose if not add periodic reconciliation
      At the end of the stream, alongside the stream processors, we can also dump the raw click events to a data lake like S3. Flink supports this through its FileSystem interface and various connectors, allowing for both batch and real-time data processing outputs to be stored directly in S3 buckets. Then, we can run a batch job that reads all the raw click events from the data lake and re-aggregates them. This way, we can compare the results of the batch job to the results of the stream processor and ensure that they match. If they don’t, we can investigate the discrepancies and fix the root cause while updating the data in the OLAP DB with the correct values.
      This essentially combines our two solutions, real-time stream processing and periodic batch processing, to ensure that our data is not only fast but also accurate.
-4. How can we prevent abuse from users clicking on play multiple times? 
+4. **How can we prevent abuse from users clicking on play multiple times**? 
    * While modern systems have advanced fraud detection systems, which we have considered out of scope, we still want to come up with a way to enforce song play Idempotency. ie. if a user clicks on an ad multiple times, we only count it as one click.
