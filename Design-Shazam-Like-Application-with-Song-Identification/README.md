@@ -21,7 +21,7 @@
 1. Assume that there are around 100 millions songs and size of per song is 5MB and its metadata is 1KB.
    => 100M * 1KB = 100 * 10^6 * 1*10^3 = 100 * 10^9 = 100GB
 2. There is no need to store the songs as it could lead to additional storage as well as compliance concerns regarding the rights of the songs.
-   Regarding the storage of the metadata, it will require around 100GB (1KB * 1000 million songs) of storage.
+   Regarding the storage of the metadata, it will require around 100GB (1KB * 100 million songs) of storage.
 3. let's assume each song can produce 30 fingerprints of 64 bits each
    30 fingerprints of 64 bits each = 30 * 64 = 1920 bits = 240 bytes
    => 100M * 24 bytes = 100 * 10^6 * 24 = 2400 * 10^6 = 2.4GB
@@ -32,18 +32,28 @@
 
 ## _API Design_
 
-1. **Retrieve the top k songs**
-   * Endpoint: GET /plays/top?window={WINDOW}&k={K}
+1. **Identify the song**
+   * Endpoint: POST v1/audio/
+   * Request Body: 
+     * form-data 
+     * Key: file 
+     * Value: (Audio file)
    * Response:
      ```json
-     {
-        "videos": [
-                   {
-                    "videoId": "video1344545",
-                     "views": 123213
-                   },
-                  .....
-                  ]
+        {
+             "song": {
+                     "title": "Blinding Lights",
+                     "artist": "The Weeknd",
+                     "album": "After Hours",
+                     "release_date": "2019-11-29",
+                     "duration": "3:22",
+                     "genre": "Synthwave, Pop"
+                    },
+          "links": {
+                     "spotify": "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b",
+                     "apple_music": "https://music.apple.com/track/0VjIjW4GlUZAMYd2vXMi3b",
+                     "youtube": "https://www.youtube.com/watch?v=fHI8X4OXluQ"
+                 }
      }
      ```
 

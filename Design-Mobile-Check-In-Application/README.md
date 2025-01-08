@@ -1,4 +1,4 @@
-# Design Shazam Like Application with Song Identification
+# System Design Mobile Check-In 
 
 ## _Fun. / Non-Fun. Requirements_
 
@@ -15,6 +15,8 @@
     * Top N categories with the highest check-ins(daily/monthly/yearly).
     * Most popular places (by check-ins) in a category(daily/monthly/yearly).
     * Best rated places in a category.
+* Users should be able to review their location history, view ratings, duration of stay and how often visited.
+* lastly capability to sponsored locations and display them to users.
 
 ### Non-Functional Requirements
 
@@ -205,6 +207,32 @@
           * Generates reports for popular and highly-rated locations.
       * User Reports:
          * Tracks user-specific data like check-in frequency, most visited categories, and engagement patterns.
+* Table: Check_In_Aggregates
+  ```sql
+    CREATE TABLE Check_In_Aggregates (
+        Category VARCHAR,  
+        Location_ID BIGINT,
+        Location_Name VARCHAR,
+        Time_Period_Type ENUM, // Type of time period (e.g., daily, weekly, monthly).
+        Time_Period_Start DATETIME,
+        Time_Period_End DATETIME,
+        Check_In_Count INT,
+        Rank INT,
+        PRIMARY KEY (Category, Time_Period_Type, Time_Period_Start, Location_ID)
+    );
+    ``` 
+  * Workflow for Precomputing the Data
+     * Step 1: Aggregating Data
+         * Use a batch process (e.g., a daily or hourly cron job) to:
+         * Aggregate check-in data from the User_Check_Ins table.
+         * Compute the total check-ins for each location within a specific category and time period (daily, weekly, or monthly).
+         * Rank locations based on the number of check-ins.
+     * Step 2: Inserting Data into the Summary Table
+          * Store the precomputed results in the Check_In_Aggregates table.
+          * This table should be updated periodically (e.g., once a day for daily rankings, once a week for weekly rankings).
+      * Step 3: Querying the Precomputed Data
+          * When the system needs to display the highest-ranked places of interest, query the Check_In_Aggregates table instead of calculating rankings on the fly.
+
 
 ### high level design
 
@@ -212,7 +240,64 @@
 
 ### Database Design
 
-![DB design](./images/Shazam_DB_Design.png)
+1. Users: Represents users of the system.
+2. Locations: Stores metadata about points of interest (POIs) like restaurants, parks, etc.
+3. Check-Ins: Tracks user check-ins to specific locations.
+4. Categories: Classifies locations into categories (e.g., restaurants, cafes, parks).
+5. Ratings and Reviews: Stores user ratings and reviews for locations.
+6. Recommendations: Logs suggested locations and related metadata.
+7. Trending Analytics: Stores aggregated metrics for trending locations and categories.
+
+![DB design](./images/Mobile_Check-In_Schema_Design.png)
+
+### Queries
+1. **Fetch Nearby Locations**
+   ```sql
+    SELECT *
+    FROM Locations
+    WHERE ST_Distance_Sphere(
+    point(longitude, latitude),
+    point(:user_longitude, :user_latitude)) <= :radius
+    ORDER BY name;
+   ```
+2. **Get Top Categories** 
+    ```sql
+     SELECT category_id, category_name, SUM(checkins_count) AS total_checkins
+     FROM Trending_Analytics
+     WHERE date BETWEEN :start_date AND :end_date
+     GROUP BY category_id, category_name
+     ORDER BY total_checkins DESC
+     LIMIT 10;
+
+     ```
+3. **User's Check-In History**
+    ```sql
+       SELECT c.checkin_time, l.name AS location_name, c.rating, c.duration_minutes
+       FROM Check_Ins c
+       JOIN Locations l ON c.location_id = l.location_id
+       WHERE c.user_id = :user_id
+       ORDER BY c.checkin_time DESC;
+
+    ```
+4. **Trending Locations**
+    ```sql
+       SELECT l.name AS location_name, t.checkins_count, t.average_rating
+       FROM Trending_Analytics t
+       JOIN Locations l ON t.location_id = l.location_id
+       WHERE t.date = CURRENT_DATE
+       ORDER BY t.checkins_count DESC
+       LIMIT 5;
+    ```
+   
+5. **User Recommendations**
+    ```sql
+       SELECT l.name AS location_name, l.category, l.rating
+       FROM Recommendations r
+       JOIN Locations l ON r.location_id = l.location_id
+       WHERE r.user_id = :user_id
+       ORDER BY r.rank;
+    ```
+
 
 ### _Questions_
 
