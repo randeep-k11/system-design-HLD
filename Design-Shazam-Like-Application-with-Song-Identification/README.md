@@ -1,6 +1,7 @@
 # Design Shazam Like Application with Song Identification
 
 ## _Fun. / Non-Fun. Requirements_
+
 ### Functional Requirements
 * Efficiently preprocess and store fingerprints for millions of songs.
 * As a user, I should be able to record an audio and the system should identify return the song from the audio.
