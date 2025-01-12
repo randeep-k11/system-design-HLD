@@ -2,6 +2,7 @@
 
 ## _Fun. / Non-Fun. Requirements_
 ### Functional Requirements
+* Efficiently preprocess and store fingerprints for millions of songs.
 * As a user, I should be able to record an audio and the system should identify return the song from the audio.
 
 ### Non-Functional Requirements
@@ -26,9 +27,10 @@
    30 fingerprints of 64 bits each = 30 * 64 = 1920 bits = 240 bytes
    => 100M * 24 bytes = 100 * 10^6 * 24 = 2400 * 10^6 = 2.4GB
 4. QPS
-   * Let's assume that we have 100 million users and each user makes 10 requests per day.
-   * Total requests per day = 100M * 10 = 1B
-   * Total requests per second = 1B / (24 * 3600) ≈ 11574 requests per second
+   * Let's assume that we have total of 100 million users.
+   * DAU is 20% of total users and each user makes 10 requests per day.
+   * Total requests per day = 20M * 10 = 20M * 10^1 = 200M
+   * Total requests per second = 200M / (24 * 3600) = 200M / 86400 = 200M / 10^5 = 2000 QPS
 
 ## _API Design_
 
@@ -59,14 +61,15 @@
 
 ## _High-Level Architecture_
 ### Key Components
-1. Hadoop Cluster: 
-   * Preprocessing Songs:
-        * Input: Songs from music providers or publishers.
-        * Process:
-           * Registration service uses the "processing" algorithm to extract 20-30 unique fingerprints from each song.
-           * Each fingerprint is a compact representation of specific frequency characteristics of the song.
-        * Output: Store fingerprints and associated song metadata in the database
-2. ElasticSearch: An inverted index is highly useful in the fingerprint matching process for Shazam because it enables efficient lookup of potential matches for the user's fingerprint.
+1. Raw Audio Processing : Audio is stored in S3 and sent to the preprocessing service via Apache Flink.
+2. Fingerprint Generation: Fingerprints are processed in Apache Flink and extract 20-30 unique fingerprints from each song published to Kafka. 
+3. Storage and Processing: 
+   * Fingerprints are consumed by two consumers:
+        * ElasticSearch Consumer writes fingerprints into ElasticSearch for fast retrieval during song recognition.
+        * MongoDB Consumer stores the fingerprints in MongoDB, likely for backup, analytics, or transactional consistency. 
+   * Song metadata are consumed by metadata consumer which stores metadata in MongoDB:
+        * Metadata includes song title, artist, album, genre, and other relevant information.
+4. ElasticSearch: An inverted index is highly useful in the fingerprint matching process for Shazam because it enables efficient lookup of potential matches for the user's fingerprint.
    * An inverted index is a data structure that maps unique keys (in this case, fingerprints) to a list of associated identifiers (here, SongIDs).
      Structure of an Inverted Index for Shazam:
       * Key: A fingerprint hash (unique audio signature generated during preprocessing).
@@ -137,12 +140,14 @@
                    * If confidence scores are close, apply additional heuristics, such as:
                        * Length of the snippet.
                        * Frequency of shared fingerprints among multiple songs (e.g., penalize overly common fingerprints that appear in many songs).
-3. Recognition Service: 
+5. Recognition Service: 
    * **Functionality:**
       * Receives audio snippets from users.
-      * Generates fingerprints for the snippets.
-      * Queries the ElasticSearch inverted index to find candidate songs.
-      * Compares user fingerprints with full song fingerprints to identify the best match.
+      * calls the **AudioPreprocessing Service** to generate fingerprint.
+      * Once unique fingerprint is available, it calls **fingerprint matching service**.
+      * fingerprint matching service first check in the redis cache, if fingerprint found it returns the songId otherwise it queries the ElasticSearch inverted index to find candidate song.
+      * Recognition Service receives the songId and calls **metadata service**.
+      * Metadata service first check in the redis cache, if fingerprint found it returns, otherwise queries to metadata DB and returns the song details to the Recognition Service.
       * Returns the matched song to the user.
    * **Components:**
       * **Audio Fingerprinting Module:**
@@ -157,7 +162,7 @@
       * **Result Generation:**
          * Selects the best match based on confidence scores.
          * Returns the matched song to the user.
-4. Matching Service :
+6. Matching Service :
     * **Functionality:**
         * Compares user fingerprints with song fingerprints.
         * Calculates confidence scores for each candidate song.
@@ -219,4 +224,3 @@
              * High error rates.
              * Slow query times.
              * System resource exhaustion.
-* 
