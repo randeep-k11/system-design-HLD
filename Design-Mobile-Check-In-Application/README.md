@@ -8,15 +8,15 @@
     * User can select a location and check-in, providing metadata such as a star rating.
     * The app records user location, time and duration of stay.
 * NearBy Recommendations
-    * Suggest nearby point of interest(POI's) based on user's current location.
+    * Suggest nearby point of interest (POI's) based on user's current location.
 * Batch upload of locations
-    * Support importing location data with metadata in bulk.
+    * Support for importing location data with metadata in bulk.
 * Reports
-    * Top N categories with the highest check-ins(daily/monthly/yearly).
-    * Most popular places (by check-ins) in a category(daily/monthly/yearly).
+    * Top N categories with the highest check-ins (daily/monthly/yearly).
+    * Most popular places (by check-ins) in a category (daily/monthly/yearly).
     * Best rated places in a category.
 * Users should be able to review their location history, view ratings, duration of stay and how often visited.
-* lastly capability to sponsored locations and display them to users.
+* lastly, ability to sponsor locations and display them to users.
 
 ### Non-Functional Requirements
 
@@ -193,7 +193,7 @@
    preferences and contextual factors such as location, time, and past behavior. It interacts with other microservices to fetch relevant data, 
    enabling it to deliver personalized, accurate, and timely location recommendations. It achieves this through well-defined APIs and event-driven communication where necessary
     * Interactions with Other Services
-      1. Location Service : Fetch metadata and geospatial details of nearby locations.
+      1. Location Service: Fetch metadata and geospatial details of nearby locations.
            ``` json
              GET /locations/nearby?latitude=12.9716&longitude=77.5946&radius=5000
                Response:
@@ -209,7 +209,7 @@
                    },
                  ]
            ```
-      2.  Location Summary Service : Fetch popularity metrics, such as total check-ins and average ratings, for nearby locations.
+      2.  Location Summary Service: Fetch popularity metrics, such as total check-ins and average ratings, for nearby locations.
            ``` json
              POST /location-summaries
                Request:
@@ -226,7 +226,7 @@
                    }
                 ]
            ```
-      3. User Profile Service : Fetch user preferences for personalized recommendations.
+      3. User Profile Service: Fetch user preferences for personalized recommendations.
            ``` json
              GET /users/{userId}/preferences
                Response:
@@ -235,7 +235,7 @@
                   "preferredRadius": 5000
                  }
            ```
-      4. Sponsored Location Service (Optional) : Retrieve sponsored locations to prioritize them in recommendations.
+      4. Sponsored Location Service (Optional): Retrieve sponsored locations to prioritize them in recommendations.
               ``` json
                  GET /sponsored-locations ? latitude=12.9716&longitude=77.5946&radius=5000
                 Response:
