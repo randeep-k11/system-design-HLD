@@ -1,14 +1,12 @@
-# Design a URL shortener
+# Design Typeahead (Autocomplete) System
 
 ## _Fun. / Non-Fun. Requirements
 ### Functional Requirements
 
-1. Generate a unique short URL for a given long URL.
-2. Redirect to the original URL when a short URL is accessed.
-3. Allow user to customise their short URL (Optional).
-4. Support link expiration, after which the short URL will not redirect to the original URL.
-5. Track the number of times a short URL is accessed.
-6. Analytics for a short URL, such as a number of times it was accessed, geographical location, browsers, etc.
+1. The System should search suggestions as the user types in the search bar.
+2. The System should return the top 10 results for each query.
+3. The system should prioritize the results based on the popularity of the search term.
+4. The system should handle updates to the data, e.g.: new entries added.
 
 ### Non-Functional Requirements
 

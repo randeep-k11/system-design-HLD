@@ -155,7 +155,7 @@
         * The app sends a request to the Check-In Service.
     * Step 2 : Request validation and processing
         * The Check-In Service validates the request:
-            * Ensure the location ID exists(via Location Service).
+            * Ensure the location ID exists (via Location Service).
             * check if the user has already checked in at the location to avoid duplicates.
     * Step 3: Record the check-in:
         * A new check-in record is created in the database:
