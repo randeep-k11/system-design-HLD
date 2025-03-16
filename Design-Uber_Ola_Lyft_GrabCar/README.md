@@ -16,6 +16,22 @@
 ## _Traffic and Storage Estimation_
 #### Assumptions
 
+* let's assume we have 100 million daily active users with 1 million drivers, and on average, our platform enables 10 million rides per day.
+* if on average, each user performs 10 actions (such as request a check-available rides, book rides, etc.). we will have to handle 1 billion requests daily.
+   
+    ````
+      100 million users * 10 actions = 1 billion requests / 3600 * 24 = 11,574 requests per second ~= 12k requests per second
+    
+    ````
+* Peak QPS = 2 * 12k = 24k
+#### Storage
+* Assume each message on average is 400 bytes, we would need 400 GB of new data per day.
+   ````
+    1 billion requests * 400 bytes = 400 GB
+    after 10 years 
+    400 GB * 365 days * 10 years = 1.46 TB
+     
+  ````
 
 ## _API Design_
 1.  POST /ride/fare-estimate
