@@ -260,13 +260,13 @@
         * When a worker is assigned a job, it creates a new entry in the Job Execution Table with the job’s status set to running and begins execution. 
         * After execution is finished, the worker updates the job’s final status (e.g., completed or failed) along with any output in both the Jobs and Job Execution Table. 
         * If a worker fails during execution, the coordinator re-queues the job in the distributed job queue, allowing another worker to pick it up and complete it.
-4. **Database:**
+6. **Database:**
    * Stores job metadata, user information, and execution logs.
    * Relational database to ensure data consistency and support complex queries.
-5. **Monitoring and Logging System:**
+7. **Monitoring and Logging System:**
    * Collects and aggregates logs from various services. 
    * Provides real-time monitoring and alerting for system health and job execution.
-6. **Notification Service:**
+8. **Notification Service:**
    * Sends alerts and notifications to users about job status changes or failures.
    * Integrates with email, SMS, or other messaging platforms.
 

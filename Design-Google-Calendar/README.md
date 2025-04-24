@@ -1,17 +1,18 @@
-# Design Typeahead (Autocomplete) System
+# Design Google Calendar
 
 ## _Fun. / Non-Fun. Requirements
 ### Functional Requirements
 
-1. when typing in the search bar, the system should suggest a list of relevant queries in real-time.
-2. The suggestions may be either for individual words or full search terms.
-3. Search results must be ordered by some ranking scores.
-4. The result must be relevant to whatever prefix the user has typed.
+1. Users to be able to create events and events can be one-time or recurring.
+2. Users should be able to update events
+3. Users should be able to list all events
+4. Users should be able to delete events
+5. Users should be able to get information about specific event.
 
 ### Non-Functional Requirements
 
 1. High availability. (The service should be up 99.9% of the time)
-2. Low latency.
+2. Low latency. (The redirection to the original URL should happen in real-time)
 3. It's ok if we don't have strong consistency. Owing to the CAP theorem, as availability and partition tolerance are our priority, eventual consistency is fine.
    if two people see different suggestions for a certain time span, it is fine but the system must be available.
 

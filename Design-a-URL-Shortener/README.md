@@ -1,4 +1,4 @@
-# Design Typeahead (Autocomplete) System
+# Design URL Shortening service
 
 ## _Fun. / Non-Fun. Requirements
 ### Functional Requirements
