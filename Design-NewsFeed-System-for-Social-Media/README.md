@@ -50,7 +50,7 @@
 
 
 ### high level design
-![high level design](./images/Design_an_Online_Ticket_Booking_System.png)
+![high level design](./images/News_Feed_System.png)
 
 ### Database Design
 ![Database Design](./images/DistributedJobScheduler-Db-Design.png)
