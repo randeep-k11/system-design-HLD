@@ -88,7 +88,7 @@
 ![high level design](./images/Netflix_YouTue_PrimeVideo_HotStar.png)
 
 ### Database Design
-![Database Design](./images/URL_Shortening_System_Database_Design.png)
+![Database Design](./images/Database_Design.png)
 
 ### _Questions_
 1. 
